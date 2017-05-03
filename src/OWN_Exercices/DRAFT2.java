@@ -414,6 +414,80 @@ public class DRAFT2 {
 
 		}
 
+		// find difference
+		{
+
+			// ArrayList<Integer> arr = new ArrayList<>(Arrays.asList(1, 3, 5));
+			// int diff = 4;
+
+			// ArrayList<Integer> arr = new ArrayList<>(
+			// Arrays.asList(15, 2, 14, 18, 23, 25, 36, 40, 44, 44, 53, 54, 68,
+			// 71, 80, 94));
+			// int diff = 82;
+
+			ArrayList<Integer> arr = new ArrayList<>(Arrays.asList(1, 0));
+			int diff = 0;
+
+			class DIFFK {
+				// 0: false, 1: true
+				// using O(n) space complexity (dictionary)
+				public int diffPossible(ArrayList<Integer> a, int b) {
+					Map<Integer, Integer> dict = new HashMap<>();
+					for (int idx = 0; idx < a.size(); idx++) {
+						if (!dict.containsKey(a.get(idx))) {
+							dict.put(a.get(idx), 1);
+						} else {
+							dict.put(a.get(idx), dict.get(a.get(idx)) + 1);
+						}
+					}
+					for (int i : a) {
+						// looking for i-b
+						if (dict.containsKey(i - b)) {
+							if (i - b == i) {
+								if (dict.get(i - b) >= 2) {
+									debugln("found(same) : " + i + " and in dict: " + (i - b));
+									return 1;
+								}
+							} else {
+								debugln("found : " + i + " and in dict: " + (i - b));
+								return 1;
+							}
+						}
+					}
+
+					return 0;
+				}
+
+				// O(1) space complexity
+				// assuming array is sorted!
+				public int diffPossible_BETTER(ArrayList<Integer> A, int B) {
+					int start, end;
+					int n = A.size();
+					int diff;
+
+					start = 0;
+					end = 1;
+
+					while (start <= end && end < n) {
+
+						diff = A.get(end) - A.get(start);
+
+						if (diff == B && start != end) {
+							return 1;
+						} else if (diff <= B) {
+							end++;
+						} else {
+							start++;
+						}
+					}
+
+					return 0;
+				}
+			}
+
+			debugln("difference found : " + (new DIFFK().diffPossible(arr, diff) == 1 ? "YES" : "NO"));
+		}
+
 	}
 
 	static class Date implements Comparable<Date> {
