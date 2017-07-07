@@ -368,7 +368,7 @@ public class DRAFT2 {
 
 		// TODO
 		// find number in rotated sorted array
-		{
+		if (false) {
 			int[] arr = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11 };
 
 			class FINDNB {
@@ -415,7 +415,7 @@ public class DRAFT2 {
 		}
 
 		// find difference
-		{
+		if (false) {
 
 			// ArrayList<Integer> arr = new ArrayList<>(Arrays.asList(1, 3, 5));
 			// int diff = 4;
@@ -431,7 +431,8 @@ public class DRAFT2 {
 			class DIFFK {
 				// 0: false, 1: true
 				// using O(n) space complexity (dictionary)
-				public int diffPossible(ArrayList<Integer> a, int b) {
+				// works with unsorted array
+				public int diffPossible(final List<Integer> a, int b) {
 					Map<Integer, Integer> dict = new HashMap<>();
 					for (int idx = 0; idx < a.size(); idx++) {
 						if (!dict.containsKey(a.get(idx))) {
@@ -487,6 +488,89 @@ public class DRAFT2 {
 
 			debugln("difference found : " + (new DIFFK().diffPossible(arr, diff) == 1 ? "YES" : "NO"));
 		}
+
+		// STILL TO DO - not working
+		// http: // www.geeksforgeeks.org/find-distinct-subsets-given-set/
+		{
+
+			class set implements Comparable<set> {
+				List<Integer> list = new ArrayList<>();
+
+				@Override
+				public int compareTo(set o) {
+					// TODO Auto-generated method stub
+					return 0;
+				}
+
+				// compare
+
+				// equals
+
+				// hash ?
+			}
+
+			class SUBSET2 {
+				List<List<Integer>> getDistinctSubsets(List<Integer> arr) {
+
+					List<List<Integer>> subs = getAllSubsets(arr);
+
+					set zeSet = new set();
+					// keep distinct ones
+
+					// sort
+
+					return subs;
+
+				}
+
+				List<List<Integer>> getAllSubsets(List<Integer> arr) {
+
+					Collections.sort(arr);
+
+					int len = arr.size();
+
+					int count = 0;
+					int offset = 0;
+					Integer cur = null;
+					List<List<Integer>> allSubs = new ArrayList<>();
+					for (int beg = 0; beg < len; beg++) {
+						if (arr.get(beg) != cur) {
+							count = 0;
+							debugln("reset");
+						} else {
+							count--;
+						}
+						debugln("starting at beg " + beg + " with count=" + count);
+						cur = arr.get(beg);
+						for (int end = beg + 1 + count + 1; end <= len; end++) {
+							if (cur != null && end < len && (beg == 0 || cur != arr.get(beg - 1))
+									&& cur.intValue() == arr.get(end)) {
+								count++;
+								debugln("Count at (beg,end)=(" + beg + "," + end + ") = " + count);
+							}
+							List<Integer> newSubset = new ArrayList<>();
+							newSubset.addAll(arr.subList(beg, end));
+							debugln("adding " + newSubset);
+							allSubs.add(newSubset);
+						}
+
+					}
+
+					return allSubs;
+				}
+
+			}
+
+			// might contain duplicates
+			List<Integer> arr = new ArrayList<>(Arrays.asList(1, 2, 2, 2));
+			List<List<Integer>> distinctSubsets = new SUBSET2().getDistinctSubsets(arr);
+			debugln("distinct subsets: ");
+			for (List<Integer> sub : distinctSubsets) {
+				debugln(sub);
+			}
+		}
+
+		// TODO - Amazon dreadful interview : Reservoir Sampling
 
 	}
 
