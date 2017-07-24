@@ -2,6 +2,8 @@ package learnSpring;
 
 import learnSpring.withoutSpring.DataReaderClient;
 
+//NEXT : Autowiring page 41 
+
 public class Sandbox {
 
 	public static void main(String... str) {
@@ -13,7 +15,6 @@ public class Sandbox {
 
 		// 2. with Spring? using Dependency Injection (aka. Inversion of
 		// Control)
-
 	}
 
 }

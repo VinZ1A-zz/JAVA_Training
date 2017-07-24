@@ -11,7 +11,8 @@
        http://www.springframework.org/schema/security
        http://www.springframework.org/schema/security/spring-security-3.2.xsd
        http://www.springframework.org/schema/context
-       http://www.springframework.org/schema/context/spring-context.xsd">
+       http://www.springframework.org/schema/context/spring-context.xsd"
+    default-init-method="initMe"> <!--  can also define a global destroy method -->
   <!-- instead of namespaces, can also use DTD-style configuration: ( !! deprecated !! )
   <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
      "http://www.springframework.org/dtd/spring-beans.dtd">
@@ -24,7 +25,7 @@
   	<constructor-arg value="zeFirstName"></constructor-arg> <!-- can add index="0"(1..) type="String"(int..)  -->
   	<constructor-arg value="zeLastName"></constructor-arg>
   	<property name="age" value="28"></property>
-  	<property name="address" ref="address"></property>
+  	<property name="address" ref="address"></property><!--  setter type injection: passing a Person.Address instance -->
   </bean>
   
   <!--  inner class of Person  -->
@@ -58,5 +59,31 @@
   		 ...
   		</jms:listener-container>
    -->
+   
+   <!--  init and destrop can also be defined globally through default-init-method / default-destroy-method -->
+   <bean name="fxRateProvider" class="learnSpring.fundamentals.FxRateProvider" init-method="initMe" destroy-method="destroyMe">
+   	 <property name="baseCurrency" value="USD">
+   </property></bean>
+   
+   <!-- instanciating Singleton / using a static method as a class initializer -->
+   <bean name="employeeFactory" class="learnSpring.fundamentals.EmployeeFactory" factory-method="getEmployeeFactory">
+   </bean>
+   
+   <!--  instanciating a employee/executinve through non-static methods within a creator instance ('factory bean') -->
+   <bean name="employeeCreator" class="learnSpring.fundamentals.EmployeeCreator">
+   </bean>
+   <bean name="employee" factory-bean="employeeCreator" factory-method="createEmployee"/>
+   <bean name="executive" factory-bean="employeeCreator" factory-method="createExecutive"/>
+
+	<bean name="specialEmployee" class="learnSpring.fundamentals.SpecialEmployee">
+		<property name="otherAttribute" value="THROUGH_CONFIG"></property>
+	</bean>
+	
+	<bean name="contextStartEventListener" class="learnSpring.fundamentals.ContextStartedEventListener"/>
+
+	<!--  illustrating basic custom event : declares Publisher and Listener -->
+	<bean name="hugeFileEventPublisher" class="learnSpring.fundamentals.HugeFileEventPublisher"/>
+	<bean name="hugeFileEventListener" class="learnSpring.fundamentals.HugeFileEventListener"/> 
+	
 
 </beans>
