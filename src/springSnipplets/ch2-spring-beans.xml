@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- using schema/context : we are using annotations (see Reservation classes)  -->
+<!-- could use as well other schemas: jms, aop, jee, tx, lang, util...  
+     just need to add the appropriate xmlns:jms property in 'beans' (new namespace) and amend the schemaLocation --> 
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/security
+       http://www.springframework.org/schema/security/spring-security-3.2.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd"
+    default-init-method="initMe"> <!--  can also define a global destroy method -->
+  <!-- instead of namespaces, can also use DTD-style configuration: ( !! deprecated !! )
+  <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+     "http://www.springframework.org/dtd/spring-beans.dtd">
+   -->
+       
+  <!--  also possible: id, scope, dependencies, ... -->
+  <bean name="person"
+  	class="springSnipplets.fundamentals.Person">
+  	<!--  can use either constructor params or setters -->
+  	<constructor-arg value="zeFirstName"></constructor-arg> <!-- can add index="0"(1..) type="String"(int..)  -->
+  	<constructor-arg value="zeLastName"></constructor-arg>
+  	<property name="age" value="28"></property>
+  	<property name="address" ref="address"></property><!--  setter type injection: passing a Person.Address instance -->
+  </bean>
+  
+  <!--  inner class of Person  -->
+  <bean name="address"
+  class="springSnipplets.fundamentals.Person$Address">
+  	  <property name="doorNumber" value="3"></property>
+  	  <property name="firstLine" value="address First Line"></property>
+  	  <property name="secondLine" value="address Second Line"></property>
+  	  <property name="zipCode" value="2032"></property>
+  	  <!--  could define an anonymous bean here within a property 
+  	  <property name="platformLineEnder">
+  	    <bean class="xxx.yyy.zzz"/> 
+  	  </property>
+  	   -->
+  </bean>
+  <alias name="address" alias="billingAddress"/> <!--  can be used in application as well -->
+  
+  <!--  note: the wiring between classes is done through annotations in class (Manager) -->
+  <context:annotation-config/>
+  <!-- wiring is done by type and not by Name (hence resSvcABC chosen to illustrate it)  -->
+  <context:component-scan base-package="springSnipplets.autoWiring"/>
+  <!--  
+  <bean name="resSvcABC"
+    class="springSnipplets.autoWiring.ReservationService"/> -->
+  <!--  no need for a Service reference any longer thanks to autoWiring, will still be instanciated by framework 
+  eg. no need for a ReservationService property or even a bean definition -->
+  <bean name="reservationManager"
+    class="springSnipplets.autoWiring.ReservationManager"/> 
+
+  <!--  illustrates autoWiring by Name -->
+  <bean name="tradeReceiver" class="springSnipplets.autoWiring.TradeReceiver" autowire="byName">
+  <!--  no need for a <property name="tradePersistor" ref="tradePersistor"> -->
+       <property name="tradeSolo" ref="tradeSolo"></property> <!-- needed here as this bean does not want to be autowired -->
+  </bean>
+  <bean name="tradePersistor" class="springSnipplets.autoWiring.TradeReceiver$TradePersistor" autowire="constructor"/>
+  <!--  using constructor autowire to build a SomeDude -->
+  <bean name="tradeTransformer" class="springSnipplets.autoWiring.TradeReceiver$TradeTransformer"/>
+  <bean name="someDude" class="springSnipplets.autoWiring.TradeReceiver$SomeDude"/>
+  <!--  autowire could also be 'byType' in which case the matching is done on Class Name, not Attribute name 
+    Note: there would be a prob if several attributes exists with the same Class type! 
+    Note: we can also still have properties even if other attributes are auto-wired. --> 
+  <bean name="tradeSolo" class="springSnipplets.autoWiring.TradeReceiver$TradeSolo" autowire-candidate="false"/>
+  <!-- autowire-candidate="false" shows that bean cannot be auto-wired   -->
+  
+  <!--  could define other containers :
+  		<jms:listener-container>
+  		 ...
+  		</jms:listener-container>
+   -->
+   
+   <!--  init and destrop can also be defined globally through default-init-method / default-destroy-method -->
+   <bean name="fxRateProvider" class="springSnipplets.fundamentals.FxRateProvider" init-method="initMe" destroy-method="destroyMe">
+   	 <property name="baseCurrency" value="USD">
+   </property></bean>
+   
+   <!-- instanciating Singleton / using a static method as a class initializer -->
+   <bean name="employeeFactory" class="springSnipplets.fundamentals.EmployeeFactory" factory-method="getEmployeeFactory">
+   </bean>
+   
+   <!--  instanciating a employee/executinve through non-static methods within a creator instance ('factory bean') -->
+   <bean name="employeeCreator" class="springSnipplets.fundamentals.EmployeeCreator">
+   </bean>
+   <bean name="employee" factory-bean="employeeCreator" factory-method="createEmployee"/>
+   <bean name="executive" factory-bean="employeeCreator" factory-method="createExecutive"/>
+
+	<bean name="specialEmployee" class="springSnipplets.fundamentals.SpecialEmployee">
+		<property name="otherAttribute" value="THROUGH_CONFIG"></property>
+	</bean>
+	
+	<bean name="contextStartEventListener" class="springSnipplets.fundamentals.ContextStartedEventListener"/>
+
+	<!--  illustrating basic custom event : declares Publisher and Listener -->
+	<bean name="hugeFileEventPublisher" class="springSnipplets.fundamentals.HugeFileEventPublisher"/>
+	<bean name="hugeFileEventListener" class="springSnipplets.fundamentals.HugeFileEventListener"/> 
+	
+	<!--  illustrate Singleton scope (default) -->
+	<bean name="instanceCounter" class="springSnipplets.advanced.InstanceCounter" scope="singleton"/> <!-- default scope -->
+	<bean name="prototypeInstanceCounter" class="springSnipplets.advanced.InstanceCounter$PrototypeInstanceCounter" scope="prototype"/>
+
+	<!--  illustrates properties from a Property file -->
+	<!--  indicates where properties are located -->
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<beans:property name="location" value="classpath:/springSnipplets/ch2-spring-beans.properties"></beans:property>
+	</bean>
+	<!--  note: could also have several locations if using the property 'locations' instead and definining a list under the property such as:
+	   <list>
+	     <value>classpath:thefirstfile.properties</value>
+	     <value>classpath:thesecondfile.properties</value>
+	   </list>
+	 -->
+	<!--  parametrize jobSearchAgent from properties  -->
+	<bean name="jobSearchAgent" class="springSnipplets.advanced.JobSearchAgent">
+		<beans:property name="type" value="${job.type}"></beans:property>	 <!--  using famous Ant style  -->
+		<beans:property name="location" value="${job.location}"></beans:property>	
+		<!--  note: the ${xxx} access style could be changed for instance to #[xxxx] 
+		            by using placeholderPrefix and placeholderSuffix properties of the PropertyPlaceholderConfigurer bean -->
+	</bean>
+	
+	<!--  illustrates usage of java.util.List in configuration -->
+	<bean name="capitalCitiesManager" class="springSnipplets.advanced.CapitalCitiesManager">
+		<beans:property name="countriesList">
+			<beans:list>
+				<beans:value>United Kingdom</beans:value>
+				<beans:value>Japan</beans:value>
+				<beans:value>France</beans:value>
+			</beans:list>
+		</beans:property>
+		<beans:property name="countryCapitalMap">
+			<beans:map>
+				<entry key="United Kingdom" value="London"/>
+				<entry key="Japan" value="Tokyo"/>
+				<entry key="France" value="Paris"/> <!-- value could be instead a value-ref (reference to a bean) -->
+			</beans:map>
+		</beans:property>
+		<beans:property name="countryProperties">
+			<props>
+				<beans:prop key="UK">London</beans:prop>
+				<beans:prop key="USA">Washington</beans:prop>
+			</props>
+		</beans:property>
+	</bean>
+	
+	<!--  illustrates Bean Post Processors -->
+	<bean name="compNamePostProcessors" class="springSnipplets.advanced.DefaultComponentNamePostProcessor"/>
+	<bean name="postProcessComponent" class="springSnipplets.advanced.PostProcessComponent"/>
+
+    <!--  usage of inheritance and abstract classes in Spring -->
+    <bean name="abstractKlass" class="springSnipplets.advanced.AbstractKlass" abstract="true"/>
+    <bean name="klass" class="springSnipplets.advanced.Klass" parent="abstractKlass" />
+    
+    <!--  ******************************************** -->
+	<!--  usage of SpringJMS -->
+	<bean name="tradePublisher" class="springSnipplets.springJMS.TradePublisher">
+		<beans:property name="jmsTemplate" ref="jmsTemplate" />
+		<beans:property name="destinationName" value="springSnipplets.springJMS.trades" /> <!--  queue(default) name -->
+	</bean>
+	<bean name="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<beans:property name="connectionFactory" ref="connectionFactory" />
+		<beans:property name="defaultDestination" ref="defaultDestination" />
+		<!--  default : send to TOPIC rather than QUEUE  -->
+		<!-- <beans:property name="pubSubDomain" value="true"/> -->
+		<!-- avoids locking thread forever, exits gracefully -->
+		<beans:property name="receiveTimeout" value="2000" />
+		<beans:property name="messageConverter" ref="tradeConverter"></beans:property>
+	</bean>
+	<!--  default destination is a TOPIC here , 
+	could be org.apache.activemq.command.ActiveMQQueue instead --> 
+	<bean id="defaultDestination" class="org.apache.activemq.command.ActiveMQTopic">
+		<beans:constructor-arg value="topic.DEFAULT_TRADES"></beans:constructor-arg>
+	</bean>
+	<bean id="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+		<beans:property name="brokerURL" value="tcp://localhost:61616"/>
+	</bean>
+	
+	<!--  illustrates reception of JMS content synchronously, from queue  -->
+	<bean name="jobsReceiver" class="springSnipplets.springJMS.JobsReceiver">
+		<beans:property name="jmsTemplate" ref="jmsTemplate" /> <!-- same JMS connection -->
+		<beans:property name="destinationName" value="springSnipplets.springJMS.trades" /> <!--  queue(default) name -->
+	</bean>
+	
+	<!--  illustrates reception of JMS content asynchronously, from default topic topic.DEFAULT_TRADES -->
+	<bean name="myMessageListener" class="springSnipplets.springJMS.MyMessageListener">
+	</bean>
+	<!--  this bean is automatically instanciated by the framework and will instanciate listener -->
+	<!--  other kinds of containers: SimpleMessageListenerContainer and ServerSessionMessageListenerContainer -->
+	<bean id="defaultListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<beans:property name="connectionFactory"  ref="connectionFactory" ></beans:property>
+		<beans:property name="destination"  ref="defaultDestination" ></beans:property>
+		<beans:property name="messageListener"  ref="myMessageListener" ></beans:property>
+	</bean>
+	
+	<!-- using message converters to be able to convertAndSend() easily -->
+	<bean id="tradeConverter" class="springSnipplets.springJMS.TradeConverter">
+	</bean>
+	
+	 <!--  ******************************************** -->
+	 <!--  usage of Spring Data -->
+	 <bean id="movieDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+	 	<beans:property name="driverClassName" value="${jdbc.driver}"></beans:property>
+	 	<beans:property name="url" value="${jdbc.url}"></beans:property>
+	 	<beans:property name="username" value="${jdbc.username}"></beans:property>
+	 	<beans:property name="password" value="${jdbc.password}"></beans:property>
+	 	<!--  neeeupe <beans:property name="useSSL" value="false"></beans:property> -->
+	 </bean>
+	 <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+	 	<beans:property name="dataSource" ref="movieDataSource"></beans:property>
+	 </bean>
+	 <!-- finally, the Data Access Object -->
+	 <bean id="movieDao" class="springSnipplets.springData.MovieDAO">
+	 	<beans:property name="jdbcTemplate" ref="jdbcTemplate"></beans:property>
+	 </bean>
+	 
+	 <!--  illustrates a very basic usage of Hibernate -->
+	 <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+	 	<property name="dataSource" ref="movieDataSource"/>
+	 	<property name="hibernateProperties">
+	 		<props>
+	 			<prop key="hibernate.dialect">org.hibernate.dialect.MySQL55Dialect</prop> <!-- was net.sf.hibernate.dialect.MySQLDialect -->
+	 			<prop key="hibernate.show_sql">false</prop>
+	 			<prop key="hibernate.enable_lazy_load_no_trans">true</prop>
+	 		</props>
+	 	</property>
+	 	<property name="mappingResources">
+	 		<list>
+	 			<value>springSnipplets/Movie.hbm.xml</value>
+	 		</list>
+	 	</property>
+	 </bean>
+	 
+	 <!--  old style : using HibernateTemplate -->
+	 <bean id="hibernateTemplate" class="org.springframework.orm.hibernate5.HibernateTemplate">
+	 	<property name="sessionFactory" ref="sessionFactory"/>
+	 </bean>
+	  <bean id="movieDao_HIB" class="springSnipplets.springData.MovieDAO">
+	 	<beans:property name="hibernateTemplate" ref="hibernateTemplate"></beans:property>
+	 </bean>
+	 
+	 <!--  prefered way: using Hibernate native API -->
+
+</beans>

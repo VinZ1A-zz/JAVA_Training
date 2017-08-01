@@ -16,3 +16,10 @@ How to link project to GitHub
 Other good sources of exercices:
  - geeksforgeeks
  - leetCode
+ 
+ Upcoming:
+  - REST APIs examples (using Spring Boot, play..?)
+  - Eclipse RCP samples
+  - microservice concepts illustrated
+  - IoT concepts
+  - what else?

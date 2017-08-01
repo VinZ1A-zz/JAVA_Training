@@ -1,0 +1,12 @@
+	 
+	 <!--  basic Hibernate mapping data/column -->
+	 <!--  Hibernate needs a session to access Database -->
+	 <hibernate-mapping>
+	 	<class name="springSnipplets.springData.Movie" table="MOVIES">
+	   		<id name="id" column="ID">
+	     		<generator class="assigned"/> <!-- eg. application responsibility to set Primary Key -->
+	   		</id> 
+	   		<property name="title" column="TITLE"/>
+	   		<property name="stars" column="STARS"/>
+	 	</class>
+	 </hibernate-mapping>
